@@ -121,11 +121,12 @@ object EventRepository {
     }
 
     fun get() : List<Event> {
-        return emptyList() //TODO Implementar solucion para obtener los tickets
+        return this.events //TODO Implementar solucion para obtener los tickets
     }
 
     fun getById(id: Long) : Event {
-        return events[0] //TODO Implementar solucion para obtener el ticket solicitado
+        val position = events.indices.find { events[it].id == id }
+        return events[position!!.toInt()] //TODO Implementar solucion para obtener el ticket solicitado
     }
     
 }
