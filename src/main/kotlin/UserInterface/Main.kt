@@ -36,15 +36,32 @@ private fun manageWithUserMenu(currentUser: User) {
         val selectedOption: Int = evaluateEnteredOption(6)
         val option: UserMenu = UserMenu.entries[selectedOption - 1]
         when (option) {
-            UserMenu.VIEW_ACCOUNT_MONEY -> TODO()
+            UserMenu.VIEW_ACCOUNT_MONEY -> showUserWallet(currentUser)
             UserMenu.VIEW_SELECT_SPORTING_EVENT -> TODO()
-            UserMenu.VIEW_SHOPPING_CART -> TODO()
+            UserMenu.VIEW_SHOPPING_CART -> viewSelectedEvents(currentEvent)
             UserMenu.VIEW_HISTORY -> TODO()
             UserMenu.MAKE_A_PURCHASE -> TODO()
             UserMenu.VIEW_OLYMPIC_MEDAL_TABLE -> TODO()
             UserMenu.LOG_OUT_USER -> showMessage("*** SUCCESSFUL SYSTEM LOGOUT, SEE YOU LATER!!! ***")
         }
     } while (option != UserMenu.LOG_OUT_USER)
+}
+
+fun viewSelectedEvents(currentEvent: Event?) {
+    if (currentEvent != null) {
+        showMessage("*** Your shopping cart contains the following Sporting Event ***")
+        showMessage("***********************************************************")
+        showMessage("*** SPORT: ${currentEvent.sport.name} \n" +
+                "*** DATE: ${currentEvent.date} \n" +
+                "*** PLACE: ${currentEvent.place}\n" +
+                "*** SCHEDULE: ${currentEvent.hour} \n" +
+                "*** PRICE: ${currentEvent.price} \n" +
+                "*** LOGO: ${currentEvent.sport.logo} \n" +
+                "*** STARS: ${currentEvent.sport.stars} \n" +
+        showMessage("***********************************************************")
+    }else{
+        showMessage(" *** No Matches!, empty shopping cart, first select a Sporting Event with option 2 ***\n")
+    }
 }
 
 private fun logIntoWebsite(): User? {
@@ -59,6 +76,9 @@ private fun logIntoWebsite(): User? {
     return currentUser
 }
 
+private fun showUserWallet(currentUser: User){
+    showMessage("*** The money available in your wallet is: ${currentUser.money} *** \n")
+}
 
 fun evaluateEnteredString(message: String): String {
     var validEntry = false
