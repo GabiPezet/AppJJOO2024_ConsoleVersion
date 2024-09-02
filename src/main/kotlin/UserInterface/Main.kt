@@ -57,7 +57,7 @@ fun viewSelectedEvents(currentEvent: Event?) {
                 "*** SCHEDULE: ${currentEvent.hour} \n" +
                 "*** PRICE: ${currentEvent.price} \n" +
                 "*** LOGO: ${currentEvent.sport.logo} \n" +
-                "*** STARS: ${currentEvent.sport.stars} \n" +
+                "*** STARS: ${currentEvent.sport.stars}")
         showMessage("***********************************************************")
     }else{
         showMessage(" *** No Matches!, empty shopping cart, first select a Sporting Event with option 2 ***\n")
