@@ -1,6 +1,7 @@
 package repositories
 
 import data.Purchase
+import data.User
 
 object PurchaseRepository {
 
@@ -19,11 +20,15 @@ object PurchaseRepository {
         purchases.add(Purchase(10L, 1510L, 5L, 150.00, "2024-06-25", "11J"))
     }
 
-    fun add(purchase: Purchase) {
-        //TODO Implementar solucion para agregar una nueva compra
+    fun addNewPurchase(purchase: Purchase) {
+        purchases.add(purchase)//TODO Implementar solucion para agregar una nueva compra
     }
 
-    fun get() : List<Purchase> {
-        return emptyList() //TODO Implementar solucion para obtener todas las compras
+    fun getPurchaseHistoryCurrentUser(currentUser: User): List<Purchase> {
+        return purchases.filter { it : Purchase -> it.userId == currentUser.id }
+    }
+
+    fun getPurchaseList(): List<Purchase> {
+        return purchases
     }
 }
