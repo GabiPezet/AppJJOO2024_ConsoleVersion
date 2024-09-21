@@ -1,17 +1,18 @@
 package UserInterface
 
 import data.Event
+import data.Purchase
 import data.User
 import repositories.EventRepository
 import repositories.PurchaseRepository
 import repositories.UserRepository
 import kotlin.enums.EnumEntries
 
-fun main () {
+fun main() {
     val menuLogin = LoginMenu.entries
     var selectedLoginOption: Int
     var loginOption: LoginMenu
-
+    
     do {
         showLoginMenu(menuLogin)
         selectedLoginOption = evaluateEnteredOption(2)
@@ -21,10 +22,11 @@ fun main () {
                 val currentUser: User? = logIntoWebsite()
                 if (currentUser != null) {
                     manageWithUserMenu(currentUser)
-                }else{
+                } else {
                     showMessage("*** Mismatch User, wrong username or password *** \n")
                 }
             }
+
             LoginMenu.EXIT -> showMessage("Goodbye, Have a nice day!")
         }
     } while (loginOption != LoginMenu.EXIT)
@@ -42,11 +44,59 @@ private fun manageWithUserMenu(currentUser: User) {
             UserMenu.VIEW_SELECT_SPORTING_EVENT -> selectSportingEvent().also { currentEvent = it }
             UserMenu.VIEW_SHOPPING_CART -> viewSelectedEvents(currentEvent)
             UserMenu.VIEW_HISTORY -> listPurchaseHistory(currentUser)
-            UserMenu.MAKE_A_PURCHASE -> TODO()
+            UserMenu.MAKE_A_PURCHASE -> currentEvent = optionSportingEvent(currentUser, currentEvent)
             UserMenu.VIEW_OLYMPIC_MEDAL_TABLE -> TODO()
             UserMenu.LOG_OUT_USER -> showMessage("*** SUCCESSFUL SYSTEM LOGOUT, SEE YOU LATER!!! ***")
         }
     } while (option != UserMenu.LOG_OUT_USER)
+}
+
+fun optionSportingEvent(currentUser: User, currentEvent: Event?): Event? {
+    var actualCurrentEvent = currentEvent
+    if ((actualCurrentEvent != null)) {
+        val totalAmountToPay: Double
+        val commission: Double
+        val pair = calculateAmountToPayForEvent(actualCurrentEvent)
+        totalAmountToPay = pair.first
+        commission = pair.second
+        showMessage("\n*** The cost of your selected event is ${actualCurrentEvent.price} ***")
+        showMessage("*** The commission percentage that your selected event has is $commission % .***")
+        showMessage("*** The total amount payable for your commission event is $totalAmountToPay ***\n")
+        val shopMenu = ShopMenu.entries
+        showShopMenu(shopMenu)
+        val selectPurchasedOption = evaluateEnteredOption(2)
+        val option = ShopMenu.entries[selectPurchasedOption - 1]
+        when (option) {
+            ShopMenu.PURCHASE -> {
+                if (currentUser.money >= totalAmountToPay) {
+                    val newPurchase: Purchase = buildNewPurchase(currentEvent, currentUser, totalAmountToPay)
+                    PurchaseRepository.addNewPurchase(newPurchase)
+                    UserRepository.modifyWallet(currentUser, totalAmountToPay)
+                    showMessage("*** Purchase made successfully! , enjoy your event !!!")
+                    actualCurrentEvent = null
+                } else {
+                    showMessage("\n*** You don't have enough money to make the purchase. Select another event.***\n")
+                }
+            }
+
+            ShopMenu.CANCEL_PURCHASE -> {
+                showMessage(" *** SUCCESSFUL PURCHASE CANCELLATION *** ")
+                actualCurrentEvent = null
+            }
+        }
+    } else {
+        showMessage("*** Error, you do not have any package selected. ***\n")
+        showMessage("*** Select a package with option number 2 from the menu and try again . ***\n")
+    }
+    return actualCurrentEvent
+}
+
+fun buildNewPurchase(currentEvent: Event?, currentUser: User, totalAmountToPay: Double): Purchase {
+    TODO("Not yet implemented")
+}
+
+fun calculateAmountToPayForEvent(actualCurrentEvent: Event): Pair<Double, Double>   {
+    TODO()
 }
 
 fun listPurchaseHistory(currentUser: User) {
@@ -129,10 +179,6 @@ private fun logIntoWebsite(): User? {
     return currentUser
 }
 
-private fun showUserWallet(currentUser: User){
-    showMessage("*** The money available in your wallet is: ${currentUser.money} *** \n")
-}
-
 fun evaluateEnteredString(message: String): String {
     var validEntry = false
     var dataEntry  = ""
@@ -189,4 +235,16 @@ private fun showUserMenu(menu: EnumEntries<UserMenu>) {
         showMessage(menu[i].toString())
     }
     showMessage("*********************************************************\n")
+}
+
+fun showShopMenu(shopMenu: EnumEntries<ShopMenu>) {
+    showMessage("**** OPTIONS MENU: Do you want to confirm your purchase ? *****")
+    for (i in shopMenu.indices) {
+        showMessage(shopMenu[i].toString())
+    }
+    showMessage("***************************************************************")
+}
+
+private fun showUserWallet(currentUser: User){
+    showMessage("*** The money available in your wallet is: ${currentUser.money} *** \n")
 }
