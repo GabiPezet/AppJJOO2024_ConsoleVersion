@@ -12,7 +12,7 @@ fun main() {
     val menuLogin = LoginMenu.entries
     var selectedLoginOption: Int
     var loginOption: LoginMenu
-    
+
     do {
         showLoginMenu(menuLogin)
         selectedLoginOption = evaluateEnteredOption(2)
