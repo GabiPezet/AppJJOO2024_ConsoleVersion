@@ -2,6 +2,7 @@ package UserInterface
 
 import data.Event
 import data.Purchase
+import data.TicketType
 import data.User
 import repositories.EventRepository
 import repositories.PurchaseRepository
@@ -37,7 +38,7 @@ private fun manageWithUserMenu(currentUser: User) {
     do {
         val menu = UserMenu.entries
         showUserMenu(menu)
-        val selectedOption: Int = evaluateEnteredOption(6)
+        val selectedOption: Int = evaluateEnteredOption(7)
         val option: UserMenu = UserMenu.entries[selectedOption - 1]
         when (option) {
             UserMenu.VIEW_ACCOUNT_MONEY -> showUserWallet(currentUser)
@@ -78,14 +79,13 @@ fun optionSportingEvent(currentUser: User, currentEvent: Event?): Event? {
                     showMessage("\n*** You don't have enough money to make the purchase. Select another event.***\n")
                 }
             }
-
             ShopMenu.CANCEL_PURCHASE -> {
                 showMessage(" *** SUCCESSFUL PURCHASE CANCELLATION *** ")
                 actualCurrentEvent = null
             }
         }
     } else {
-        showMessage("*** Error, you do not have any package selected. ***\n")
+        showMessage("*** Error, you do not have any sporting event selected. ***\n")
         showMessage("*** Select a package with option number 2 from the menu and try again . ***\n")
     }
     return actualCurrentEvent
@@ -96,7 +96,24 @@ fun buildNewPurchase(currentEvent: Event?, currentUser: User, totalAmountToPay: 
 }
 
 fun calculateAmountToPayForEvent(actualCurrentEvent: Event): Pair<Double, Double>   {
-    TODO()
+    var totalAmountToPay = 0.0
+    var commissionTotal = 0.0
+    val ticketTypeMenu = TicketTypeMenu.entries
+    showIntermediaryMenu(ticketTypeMenu)
+    val selectTicketOption = evaluateEnteredOption(3)
+    val ticketOption = TicketTypeMenu.entries[selectTicketOption - 1]
+    when (ticketOption) {
+        TicketTypeMenu.TICKET_ELITE -> {
+            showMessage(" *** ACÁ VA EL CALCULO DE TICKET ELITE *** ")
+        }
+        TicketTypeMenu.TICKET_PRO-> {
+            showMessage(" *** ACÁ VA EL CALCULO DE TICKET PRO *** ")
+        }
+        TicketTypeMenu.TICKET_ULTIMATE-> {
+            showMessage(" *** ACÁ VA EL CALCULO DE TICKET ULTIMATE *** ")
+        }
+    }
+    return Pair(totalAmountToPay , commissionTotal)
 }
 
 fun listPurchaseHistory(currentUser: User) {
@@ -220,7 +237,7 @@ fun showMessage(message: String) = println(message)
 
 private fun showLoginMenu(menu: EnumEntries<LoginMenu>) {
     showMessage("*****************************************************")
-    showMessage("***  Welcome to the Program Mobile system TourApp ***")
+    showMessage("***  Welcome to the Program Mobile system JJOO2024 **")
     showMessage("***************    OPTION MENU     ******************")
     for (i in menu.indices) {
         showMessage(menu[i].toString())
@@ -243,6 +260,15 @@ fun showShopMenu(shopMenu: EnumEntries<ShopMenu>) {
         showMessage(shopMenu[i].toString())
     }
     showMessage("***************************************************************")
+}
+
+private fun showIntermediaryMenu(menu: EnumEntries<TicketTypeMenu>) {
+    showMessage("*********************************************************")
+    showMessage("******************  INTERMEDIARY MENU  ******************")
+    for (i in menu.indices) {
+        showMessage(menu[i].toString())
+    }
+    showMessage("*********************************************************\n")
 }
 
 private fun showUserWallet(currentUser: User){
