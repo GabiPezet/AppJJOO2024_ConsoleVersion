@@ -1,12 +1,17 @@
 package UserInterface
 
+import Domain.ELITE
+import Domain.PRO
+import Domain.Ticket
+import Domain.ULTIMATE
 import data.Event
 import data.Purchase
-import data.TicketType
 import data.User
 import repositories.EventRepository
 import repositories.PurchaseRepository
 import repositories.UserRepository
+import java.time.LocalDateTime
+import java.util.*
 import kotlin.enums.EnumEntries
 
 fun main() {
@@ -58,11 +63,13 @@ fun optionSportingEvent(currentUser: User, currentEvent: Event?): Event? {
         val totalAmountToPay: Double
         val commission: Double
         val pair = calculateAmountToPayForEvent(actualCurrentEvent)
+        val seatLocation: String = generateSeat()
         totalAmountToPay = pair.first
         commission = pair.second
         showMessage("\n*** The cost of your selected event is ${actualCurrentEvent.price} ***")
         showMessage("*** The commission percentage that your selected event has is $commission % .***")
         showMessage("*** The total amount payable for your commission event is $totalAmountToPay ***\n")
+        showMessage("*** The seat location for this ticket is $seatLocation ***\n")
         val shopMenu = ShopMenu.entries
         showShopMenu(shopMenu)
         val selectPurchasedOption = evaluateEnteredOption(2)
@@ -70,7 +77,7 @@ fun optionSportingEvent(currentUser: User, currentEvent: Event?): Event? {
         when (option) {
             ShopMenu.PURCHASE -> {
                 if (currentUser.money >= totalAmountToPay) {
-                    val newPurchase: Purchase = buildNewPurchase(currentEvent, currentUser, totalAmountToPay)
+                    val newPurchase: Purchase = buildNewPurchase(currentEvent, currentUser, totalAmountToPay, seatLocation)
                     PurchaseRepository.addNewPurchase(newPurchase)
                     UserRepository.modifyWallet(currentUser, totalAmountToPay)
                     showMessage("*** Purchase made successfully! , enjoy your event !!!")
@@ -91,26 +98,45 @@ fun optionSportingEvent(currentUser: User, currentEvent: Event?): Event? {
     return actualCurrentEvent
 }
 
-fun buildNewPurchase(currentEvent: Event?, currentUser: User, totalAmountToPay: Double): Purchase {
-    TODO("Not yet implemented")
+fun generateSeat(): String {
+    val seatNumber: String = Random().nextInt(100).toString()
+    val seatLetter: String = ('A'..'Z').random().toString()
+    return seatNumber + seatLetter
+}
+
+fun buildNewPurchase(currentEvent: Event?, currentUser: User, totalAmountToPay: Double, seatLocation: String): Purchase {
+    val lastPurchase = PurchaseRepository.getPurchaseList().last()
+    val id = lastPurchase.id + 1
+    val userId = currentUser.id
+    val eventId = currentEvent?.id
+    val createdData = LocalDateTime.now().toString()
+    val purchase = Purchase(id,userId, eventId!!,totalAmountToPay,createdData, seatLocation)
+    return purchase
 }
 
 fun calculateAmountToPayForEvent(actualCurrentEvent: Event): Pair<Double, Double>   {
     var totalAmountToPay = 0.0
     var commissionTotal = 0.0
+    val currentDateAndTime: LocalDateTime = LocalDateTime.now()
     val ticketTypeMenu = TicketTypeMenu.entries
     showIntermediaryMenu(ticketTypeMenu)
     val selectTicketOption = evaluateEnteredOption(3)
     val ticketOption = TicketTypeMenu.entries[selectTicketOption - 1]
     when (ticketOption) {
         TicketTypeMenu.TICKET_ELITE -> {
-            showMessage(" *** ACÁ VA EL CALCULO DE TICKET ELITE *** ")
+            val elite: Ticket = ELITE(actualCurrentEvent.price, currentDateAndTime)
+            totalAmountToPay = elite.calculateAmountToPay()
+            commissionTotal = elite.getCommission()
         }
         TicketTypeMenu.TICKET_PRO-> {
-            showMessage(" *** ACÁ VA EL CALCULO DE TICKET PRO *** ")
+            val pro: Ticket = PRO(actualCurrentEvent.price, currentDateAndTime)
+            totalAmountToPay = pro.calculateAmountToPay()
+            commissionTotal = pro.getCommission()
         }
         TicketTypeMenu.TICKET_ULTIMATE-> {
-            showMessage(" *** ACÁ VA EL CALCULO DE TICKET ULTIMATE *** ")
+            val ultimate: Ticket = ULTIMATE(actualCurrentEvent.price, currentDateAndTime)
+            totalAmountToPay = ultimate.calculateAmountToPay()
+            commissionTotal = ultimate.getCommission()
         }
     }
     return Pair(totalAmountToPay , commissionTotal)
